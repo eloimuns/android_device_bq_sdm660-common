@@ -64,66 +64,6 @@ fi
 
 target=`getprop ro.board.platform`
 
-if [ -f /firmware/verinfo/ver_info.txt ]; then
-    # In mpss AT version is greater than 3.1, need
-    # to use the new vendor-ril which supports L+L feature
-    # otherwise use the existing old one.
-    modem=`cat /firmware/verinfo/ver_info.txt |
-            sed -n 's/^[^:]*modem[^:]*:[[:blank:]]*//p' |
-            sed 's/.*MPSS.\(.*\)/\1/g' | cut -d \. -f 1`
-    if [ "$modem" = "AT" ]; then
-        version=`cat /firmware/verinfo/ver_info.txt |
-                sed -n 's/^[^:]*modem[^:]*:[[:blank:]]*//p' |
-                sed 's/.*AT.\(.*\)/\1/g' | cut -d \- -f 1`
-        if [ ! -z $version ]; then
-            zygote=`getprop ro.zygote`
-            case "$zygote" in
-                "zygote64_32")
-                    if [ "$version" \< "3.1" ]; then
-                        setprop vendor.rild.libpath "/vendor/lib64/libril-qc-qmi-1.so"
-                    else
-                        setprop vendor.rild.libpath "/vendor/lib64/libril-qc-hal-qmi.so"
-                    fi
-                    ;;
-                "zygote32")
-                    if [ "$version" \< "3.1" ]; then
-                        echo "legacy qmi load for TA less than 3.1"
-                        setprop vendor.rild.libpath "/vendor/lib/libril-qc-qmi-1.so"
-                    else
-                        setprop vendor.rild.libpath "/vendor/lib/libril-qc-hal-qmi.so"
-                    fi
-                    ;;
-            esac
-        fi
-    # In mpss TA version is greater than 3.0, need
-    # to use the new vendor-ril which supports L+L feature
-    # otherwise use the existing old one.
-    elif [ "$modem" = "TA" ]; then
-        version=`cat /firmware/verinfo/ver_info.txt |
-                sed -n 's/^[^:]*modem[^:]*:[[:blank:]]*//p' |
-                sed 's/.*TA.\(.*\)/\1/g' | cut -d \- -f 1`
-        if [ ! -z $version ]; then
-            zygote=`getprop ro.zygote`
-            case "$zygote" in
-                "zygote64_32")
-                    if [ "$version" \< "3.0" ]; then
-                        setprop vendor.rild.libpath "/vendor/lib64/libril-qc-qmi-1.so"
-                    else
-                        setprop vendor.rild.libpath "/vendor/lib64/libril-qc-hal-qmi.so"
-                    fi
-                    ;;
-                "zygote32")
-                    if [ "$version" \< "3.0" ]; then
-                        setprop vendor.rild.libpath "/vendor/lib/libril-qc-qmi-1.so"
-                    else
-                        setprop vendor.rild.libpath "/vendor/lib/libril-qc-hal-qmi.so"
-                    fi
-                    ;;
-            esac
-        fi
-    fi;
-fi
-
 baseband=`getprop ro.baseband`
 #enable atfwd daemon all targets except sda, apq, qcs
 setprop persist.radio.atfwd.start true;;
@@ -227,18 +167,6 @@ then
     done
 fi
 
-boot_reason=`cat /proc/sys/kernel/boot_reason`
-reboot_reason=`getprop ro.boot.alarmboot`
-power_off_alarm_file=`cat /persist/alarm/powerOffAlarmSet`
-if [ "$boot_reason" = "3" ] || [ "$reboot_reason" = "true" ]; then
-    if [ "$power_off_alarm_file" = "1" ]
-    then
-        setprop ro.alarm_boot true
-        setprop debug.sf.nobootanimation 1
-    fi
-else
-    setprop ro.alarm_boot false
-fi
 
 # copy GPU frequencies to system property
 if [ -f /sys/class/kgsl/kgsl-3d0/gpu_available_frequencies ]; then
