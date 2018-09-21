@@ -44,10 +44,6 @@ AB_OTA_POSTINSTALL_CONFIG += \
 PRODUCT_PACKAGES += \
     otapreopt_script
 
-# BQ APN list (because the Lineage one is broken)
-PRODUCT_COPY_FILES += \
-    device/bq/sdm660-common/configs/apns.xml:system/etc/apns-conf.xml
-
 # Audio
 PRODUCT_PACKAGES += \
     android.hardware.audio@2.0-impl \
