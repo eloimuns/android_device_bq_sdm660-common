@@ -563,7 +563,12 @@ on property:persist.sys.start_wdsdaemon=0
     stop wdsdaemon
 
 on property:vold.decrypt=trigger_restart_framework
-    start qcom-c_main-sh
+    start ipacm-diag
+    start ipacm
+    start ril-daemon2
+    start qti
+    start netmgrd
+    start port-bridge
     start wcnss-service
     start config_bt_addr
 
@@ -628,11 +633,6 @@ on property:bluetooth.startbtlogger=true
 
 on property:bluetooth.startbtlogger=false
     stop bt_logger
-
-service qcom-c_main-sh /vendor/bin/init.class_main.sh
-    class main
-    user root
-    oneshot
 
 on property:persist.env.fastdorm.enabled=true
     setprop persist.radio.data_no_toggle 1
